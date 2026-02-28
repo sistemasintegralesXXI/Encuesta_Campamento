@@ -714,57 +714,61 @@
     setStep(3);
   }
 
-  async function enviarTelegram(){
+function enviarTelegram() {
     const nombre = document.getElementById('nombre').value.trim();
     const edad = document.getElementById('edad').value.trim();
     const codigosStr = seleccionados.join(', ');
-    const temasStr = seleccionados.map(code=>{
-      const t = temas.find(x=>x.code===code);
-      return `  ${t.code} — ${t.emoji} ${t.title}`;
+    const temasStr = seleccionados.map(code => {
+        const t = temas.find(x => x.code === code);
+        return `  ${t.code} — ${t.emoji} ${t.title}`;
     }).join('\n');
 
-    const mensaje = `✝️ *NUEVO REGISTRO — RETIRO JÓVENES*\n\n` +
-      `👤 *Nombre:* ${nombre}\n` +
-      `🎂 *Edad:* ${edad} años\n\n` +
-      `📌 *Códigos seleccionados:* ${codigosStr}\n\n` +
-      `📖 *Temas elegidos:*\n${temasStr}\n\n` +
-      `🕐 ${new Date().toLocaleString('es-CO')}`;
+    const mensaje = `✝️ NUEVO REGISTRO — RETIRO JÓVENES\n\n` +
+        `👤 Nombre: ${nombre}\n` +
+        `🎂 Edad: ${edad} años\n\n` +
+        `📌 Códigos seleccionados: ${codigosStr}\n\n` +
+        `📖 Temas elegidos:\n${temasStr}\n\n` +
+        `🕐 ${new Date().toLocaleString('es-CO')}`;
 
-    const errDiv = document.getElementById('error3');
-    errDiv.style.display='none';
+    // --- EL TRUCO PARA EVITAR CORS ---
+    // Creamos un formulario dinámico que apunte a Telegram
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    form.target = 'hidden_iframe'; // Esto evita que la página se recargue
 
-    // Verificar configuración
-    if(TELEGRAM_BOT_TOKEN === "8139154687:AAHbJCrClIFRoVUJwJM8v-6GrTUOAs22lgY" || TELEGRAM_CHAT_ID === "7941395763"){
-      // Modo demo: mostrar éxito igual pero avisar
-      mostrarExito(nombre);
-      console.warn("⚠️ Configura TELEGRAM_BOT_TOKEN y TELEGRAM_CHAT_ID en el código");
-      return;
+    // Añadimos el Chat ID
+    const chatIdInput = document.createElement('input');
+    chatIdInput.name = 'chat_id';
+    chatIdInput.value = TELEGRAM_CHAT_ID;
+    form.appendChild(chatIdInput);
+
+    // Añadimos el Texto
+    const textInput = document.createElement('input');
+    textInput.name = 'text';
+    textInput.value = mensaje;
+    form.appendChild(textInput);
+
+    // Creamos un iframe invisible para procesar la respuesta en segundo plano
+    let iframe = document.getElementById('hidden_iframe');
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'hidden_iframe';
+        iframe.name = 'hidden_iframe';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
     }
 
-    try {
-      const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: mensaje,
-          parse_mode: 'Markdown'
-        })
-      });
-      const data = await res.json();
-      if(data.ok){
+    document.body.appendChild(form);
+    form.submit(); // Enviamos
+    
+    // Como no podemos saber si Telegram respondió OK (por seguridad del navegador),
+    // esperamos un segundo y mostramos la pantalla de éxito.
+    setTimeout(() => {
         mostrarExito(nombre);
-      } else {
-        errDiv.textContent = '❌ Error enviando a Telegram: ' + data.description;
-        errDiv.style.display = 'block';
-      }
-    } catch(e) {
-      errDiv.textContent = '❌ Error de conexión. Verifica tu token e intenta de nuevo.';
-      errDiv.style.display = 'block';
-    }
-  }
-
+        document.body.removeChild(form);
+    }, 1000);
+}
   function mostrarExito(nombre){
     document.getElementById('successName').textContent = nombre;
     const st = document.getElementById('successTopics');
