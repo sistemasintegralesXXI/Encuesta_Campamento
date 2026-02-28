@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retiro Jóvenes | Propósito & Fe</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #F5C842;
+    --gold-dark: #D4A017;
+    --deep: #0D1B2A;
+    --navy: #1A2F4A;
+    --teal: #0F7B6C;
+    --teal-light: #14A085;
+    --cream: #FFF8ED;
+    --white: #FFFFFF;
+    --text-light: #B8C8D8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* === FONDO ANIMADO === */
+  .bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bg-canvas::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(245,200,66,0.12) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    border-radius: 50%;
+    animation: float1 8s ease-in-out infinite;
+  }
+  .bg-canvas::after {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(15,123,108,0.15) 0%, transparent 70%);
+    bottom: -100px; left: -100px;
+    border-radius: 50%;
+    animation: float2 10s ease-in-out infinite;
+  }
+  .star {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0;
+    animation: twinkle var(--d) ease-in-out infinite;
+    animation-delay: var(--delay);
+  }
+  @keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,40px)} }
+  @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-40px)} }
+  @keyframes twinkle { 0%,100%{opacity:0;transform:scale(0.5)} 50%{opacity:1;transform:scale(1.5)} }
+
+  /* === WRAPPER === */
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 60px;
+  }
+
+  /* === HEADER === */
+  .header {
+    text-align: center;
+    padding: 40px 0 30px;
+    animation: fadeDown 0.8s ease both;
+  }
+  .cross-icon {
+    font-size: 2rem;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 0 12px rgba(245,200,66,0.5));
+    animation: glow 3s ease-in-out infinite;
+  }
+  @keyframes glow { 0%,100%{filter:drop-shadow(0 0 8px rgba(245,200,66,0.4))} 50%{filter:drop-shadow(0 0 20px rgba(245,200,66,0.8))} }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.1;
+  }
+  .header h1 span { color: var(--gold); }
+  .header p {
+    color: var(--text-light);
+    font-size: 1rem;
+    margin-top: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .divider {
+    width: 80px; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 16px auto 0;
+    border-radius: 2px;
+  }
+
+  /* === CARD === */
+  .card {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(245,200,66,0.15);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 700px;
+    padding: 36px 32px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07);
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  /* === STEPS === */
+  .step { display: none; }
+  .step.active { display: block; animation: fadeUp 0.5s ease both; }
+
+  /* === STEP INDICATOR === */
+  .step-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .step-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(245,200,66,0.3);
+    color: var(--text-light);
+    font-weight: 800;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .step-dot.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--deep);
+    box-shadow: 0 0 16px rgba(245,200,66,0.5);
+  }
+  .step-dot.done {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: white;
+  }
+  .step-line {
+    flex: 1;
+    height: 2px;
+    background: rgba(245,200,66,0.2);
+    align-self: center;
+    border-radius: 2px;
+    max-width: 60px;
+    transition: background 0.5s;
+  }
+  .step-line.done { background: var(--teal); }
+
+  /* === LABELS === */
+  .field-label {
+    color: var(--gold);
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  /* === INPUTS === */
+  .input-group { margin-bottom: 24px; }
+  .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .fancy-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(245,200,66,0.2);
+    border-radius: 14px;
+    padding: 14px 18px;
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.3s;
+  }
+  .fancy-input::placeholder { color: rgba(255,255,255,0.25); }
+  .fancy-input:focus {
+    border-color: var(--gold);
+    background: rgba(245,200,66,0.06);
+    box-shadow: 0 0 0 4px rgba(245,200,66,0.1);
+  }
+  .fancy-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* === VERSE BOX === */
+  .verse-box {
+    background: linear-gradient(135deg, rgba(15,123,108,0.2), rgba(245,200,66,0.1));
+    border: 1px solid rgba(15,123,108,0.4);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+  .verse-box .verse-text {
+    color: var(--cream);
+    font-size: 1rem;
+    font-style: italic;
+    line-height: 1.6;
+  }
+  .verse-box .verse-ref {
+    color: var(--gold);
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+    display: block;
+  }
+
+  /* === STEP 2 - TEMAS === */
+  .step2-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--white);
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+  .step2-subtitle {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+  }
+  .counter-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(245,200,66,0.1);
+    border: 1px solid rgba(245,200,66,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    margin-bottom: 24px;
+  }
+  .counter-badge span { color: var(--gold); font-weight: 800; font-size: 0.9rem; }
+  #count-display { font-size: 1.4rem; transition: all 0.3s; }
+
+  .topics-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245,200,66,0.3) transparent;
+  }
+  .topics-grid::-webkit-scrollbar { width: 4px; }
+  .topics-grid::-webkit-scrollbar-thumb { background: rgba(245,200,66,0.3); border-radius: 4px; }
+
+  .topic-card {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .topic-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(245,200,66,0.06), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .topic-card:hover { border-color: rgba(245,200,66,0.35); transform: translateY(-2px); }
+  .topic-card:hover::before { opacity: 1; }
+  .topic-card.selected {
+    border-color: var(--gold);
+    background: rgba(245,200,66,0.08);
+    box-shadow: 0 0 20px rgba(245,200,66,0.15);
+  }
+  .topic-card.selected::before { opacity: 1; }
+  .topic-card.disabled:not(.selected) {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .topic-emoji {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .topic-info { flex: 1; }
+  .topic-code {
+    color: var(--gold);
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+  }
+  .topic-title {
+    color: var(--white);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .topic-desc {
+    color: var(--text-light);
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+  .topic-check {
+    width: 22px; height: 22px;
+    border: 2px solid rgba(245,200,66,0.3);
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.25s;
+    margin-top: 4px;
+  }
+  .topic-card.selected .topic-check {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--deep);
+    font-size: 0.8rem;
+  }
+
+  /* === STEP 3 - RESUMEN === */
+  .summary-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .summary-age { color: var(--text-light); font-size: 0.9rem; margin-bottom: 24px; }
+  .summary-topics-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .summary-topic-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(245,200,66,0.06);
+    border: 1px solid rgba(245,200,66,0.2);
+    border-radius: 12px;
+    padding: 12px 16px;
+    animation: slideIn 0.4s ease both;
+  }
+  .summary-topic-item:nth-child(1) { animation-delay: 0.05s }
+  .summary-topic-item:nth-child(2) { animation-delay: 0.1s }
+  .summary-topic-item:nth-child(3) { animation-delay: 0.15s }
+  .summary-topic-item:nth-child(4) { animation-delay: 0.2s }
+  .summary-topic-item:nth-child(5) { animation-delay: 0.25s }
+  @keyframes slideIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+  .summary-topic-item .t-code { color: var(--gold); font-weight: 800; font-size: 0.8rem; min-width: 40px; }
+  .summary-topic-item .t-title { color: var(--white); font-weight: 700; font-size: 0.9rem; }
+
+  /* === SUCCESS SCREEN === */
+  .success-screen { text-align: center; padding: 20px 0; }
+  .success-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 16px;
+    animation: popIn 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both;
+  }
+  @keyframes popIn { from{opacity:0;transform:scale(0.3)} to{opacity:1;transform:scale(1)} }
+  .success-screen h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--white);
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+  .success-screen p { color: var(--text-light); font-size: 0.95rem; line-height: 1.6; }
+
+  /* === BUTTONS === */
+  .btn-row { display: flex; gap: 12px; margin-top: 28px; }
+  .btn {
+    flex: 1;
+    padding: 16px 24px;
+    border-radius: 14px;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.25s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: var(--deep);
+    box-shadow: 0 6px 20px rgba(245,200,66,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(245,200,66,0.45); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-light);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    flex: 0 0 auto;
+    padding: 16px 20px;
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* === ERROR === */
+  .error-msg {
+    color: #FF6B6B;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-top: 8px;
+    display: none;
+    animation: fadeUp 0.3s ease both;
+  }
+  .error-msg.show { display: block; }
+
+  /* === FOOTER === */
+  .footer {
+    text-align: center;
+    color: rgba(255,255,255,0.2);
+    font-size: 0.75rem;
+    margin-top: 30px;
+    z-index: 1;
+    position: relative;
+  }
+
+  @media (max-width: 500px) {
+    .card { padding: 24px 18px; }
+    .input-row { grid-template-columns: 1fr; }
+    .btn-row { flex-direction: column; }
+    .btn-secondary { flex: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas" id="bgCanvas"></div>
+
+<div class="wrapper">
+  <div class="header">
+    <span class="cross-icon">✝</span>
+    <h1>Retiro <span>Jóvenes</span><br>2025</h1>
+    <p>Propósito · Fe · Identidad</p>
+    <div class="divider"></div>
+  </div>
+
+  <div class="card">
+    <!-- STEP DOTS -->
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot1">1</div>
+      <div class="step-line" id="line1"></div>
+      <div class="step-dot" id="dot2">2</div>
+      <div class="step-line" id="line2"></div>
+      <div class="step-dot" id="dot3">3</div>
+    </div>
+
+    <!-- STEP 1: DATOS -->
+    <div class="step active" id="step1">
+      <div class="verse-box">
+        <p class="verse-text">"Porque yo sé los planes que tengo para ustedes, planes de bienestar y no de calamidad, para darles un futuro y una esperanza."</p>
+        <span class="verse-ref">Jeremías 29:11</span>
+      </div>
+
+      <div class="input-row">
+        <div class="input-group">
+          <label class="field-label">✦ Tu nombre</label>
+          <input class="fancy-input" type="text" id="nombre" placeholder="Ej: Daniela" autocomplete="given-name">
+        </div>
+        <div class="input-group">
+          <label class="field-label">✦ Tu edad</label>
+          <input class="fancy-input" type="number" id="edad" placeholder="Ej: 19" min="10" max="35">
+        </div>
+      </div>
+      <p class="error-msg" id="error1">Por favor ingresa tu nombre y edad 🙏</p>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goStep2()">Siguiente &rarr;</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: TEMAS -->
+    <div class="step" id="step2">
+      <h2 class="step2-title">Escoge tus 5 temas</h2>
+      <p class="step2-subtitle">Selecciona los temas que más te llaman para este retiro</p>
+
+      <div class="counter-badge">
+        <span>✦</span>
+        <span><span id="count-display">0</span>/5 seleccionados</span>
+      </div>
+
+      <div class="topics-grid" id="topicsGrid"></div>
+
+      <p class="error-msg" id="error2">Debes seleccionar exactamente 5 temas 🙏</p>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goStep1()">&larr;</button>
+        <button class="btn btn-primary" onclick="goStep3()">Ver resumen &rarr;</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: RESUMEN -->
+    <div class="step" id="step3">
+      <div class="verse-box">
+        <p class="verse-text">"No se amolden al mundo actual, sino sean transformados mediante la renovación de su mente."</p>
+        <span class="verse-ref">Romanos 12:2</span>
+      </div>
+
+      <p class="summary-name" id="sumNombre"></p>
+      <p class="summary-age" id="sumEdad"></p>
+
+      <div class="summary-topics-list" id="sumTopics"></div>
+
+      <p class="error-msg" id="error3" style="color:#FF6B6B;display:none;"></p>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goStep2()">&larr;</button>
+        <button class="btn btn-primary" onclick="enviarTelegram()">✉ Enviar respuestas</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: ÉXITO -->
+    <div class="step" id="step4">
+      <div class="success-screen">
+        <span class="success-icon">🙌</span>
+        <h2>¡Listo, <span id="successName" style="color:var(--gold)"></span>!</h2>
+        <p style="margin-top:12px;">Tu selección fue enviada al líder.<br>¡Nos vemos en el retiro! Dios tiene un propósito increíble para tu vida. 🔥</p>
+        <div style="margin-top:28px;padding:20px;background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);border-radius:16px;">
+          <p style="color:var(--gold);font-weight:800;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;">Tus temas elegidos</p>
+          <div id="successTopics" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:28px;max-width:240px;" onclick="reiniciar()">Nueva respuesta</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Retiro Jóvenes Cristianos · Cúcuta 2025 · Hecho con fe y propósito ✝
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  // ⚠️ CONFIGURACIÓN - REEMPLAZA ESTOS VALORES CON LOS TUYOS ⚠️
+  // ============================================================
+  const TELEGRAM_BOT_TOKEN = "AQUI_VA_TU_TOKEN_DEL_BOT";  // Ej: 7123456789:AAFxxxxxx
+  const TELEGRAM_CHAT_ID   = "AQUI_VA_TU_CHAT_ID";         // Ej: -1001234567890 o tu ID personal
+  // ============================================================
+
+  // === ESTRELLAS FONDO ===
+  const canvas = document.getElementById('bgCanvas');
+  for(let i=0; i<40; i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.setProperty('--d', (3+Math.random()*5)+'s');
+    s.style.setProperty('--delay', (Math.random()*5)+'s');
+    canvas.appendChild(s);
+  }
+
+  // === 15 TEMAS ===
+  const temas = [
+    { code:"T01", emoji:"🎯", title:"¿Quién soy yo? — Identidad en Cristo", cat:"AUTOCONOCIMIENTO", desc:"Descubre quién eres según Dios, no según el mundo. Tu valor no depende de likes ni de personas." },
+    { code:"T02", emoji:"🔭", title:"El propósito que Dios tiene para mi vida", cat:"ENFOQUE", desc:"Dios tiene un plan específico para ti. Aprende a escuchar Su voz y alinear tu vida a ese diseño." },
+    { code:"T03", emoji:"🔥", title:"Disciplina espiritual: el hábito que transforma", cat:"DISCIPLINA", desc:"La oración, la Biblia y el ayuno no son obligaciones, son armas. Construye tu rutina de poder." },
+    { code:"T04", emoji:"🗺️", title:"Metas con fe: cómo trazar tu futuro", cat:"METAS", desc:"¿Sueñas pero no actúas? Aprende a escribir metas concretas y a encomendar cada paso a Dios." },
+    { code:"T05", emoji:"⚡", title:"Distracciones del siglo XXI: redes, vicios y ruido", cat:"DISTRACCIONES", desc:"Las pantallas, las opiniones ajenas y el entretenimiento vacío te pueden robar el destino." },
+    { code:"T06", emoji:"🛡️", title:"Responsabilidad: deja de culpar y empieza a construir", cat:"RESPONSABILIDAD", desc:"Hacerse responsable de las decisiones propias es el primer paso hacia la madurez y la libertad real." },
+    { code:"T07", emoji:"🧭", title:"Objetivos claros: de la visión a la acción", cat:"OBJETIVOS", desc:"Una visión sin pasos es solo un sueño. Aprende a convertir tus propósitos en planes concretos." },
+    { code:"T08", emoji:"🪞", title:"Mis emociones y mi fe — autoconocimiento emocional", cat:"AUTOCONOCIMIENTO", desc:"Dios te creó con emociones. Entenderlas y gestionarlas es inteligencia espiritual y madurez." },
+    { code:"T09", emoji:"⏳", title:"El tiempo es tuyo: administración y prioridades", cat:"DISCIPLINA", desc:"Cada día tiene 24 horas iguales para todos. Lo que defines como prioridad refleja lo que amas." },
+    { code:"T10", emoji:"💡", title:"Enfoque cuando todo distrae: el poder del SÍ y el NO", cat:"ENFOQUE", desc:"Decir NO a lo que no suma es tan poderoso como decir SÍ a tu llamado. El enfoque es tu superpoder." },
+    { code:"T11", emoji:"🤝", title:"Responsabilidad con los demás: comunidad y compromiso", cat:"RESPONSABILIDAD", desc:"No estamos solos. Nuestras decisiones afectan a quienes nos rodean. Ser responsable es amar bien." },
+    { code:"T12", emoji:"🌱", title:"Crecimiento personal y espiritual: el proceso importa", cat:"METAS", desc:"Los frutos no llegan de la noche a la mañana. Aprende a abrazar el proceso con gratitud y fe." },
+    { code:"T13", emoji:"🚀", title:"Objetivos a corto y largo plazo desde la perspectiva bíblica", cat:"OBJETIVOS", desc:"¿Qué quieres lograr este año? ¿En 5 años? Dios quiere que planees con sabiduría y confíes en Él." },
+    { code:"T14", emoji:"😴", title:"La trampa del conformismo: el enemigo del destino", cat:"DISTRACCIONES", desc:"La comodidad y la mediocridad son trampas sutiles. Dios te llama a más. ¿Estás listo para salir?" },
+    { code:"T15", emoji:"👑", title:"Liderazgo desde mi identidad: influir desde adentro", cat:"AUTOCONOCIMIENTO", desc:"Tu mayor influencia nace cuando conoces quién eres en Dios. Lidera tu vida antes de liderar a otros." },
+  ];
+
+  let seleccionados = [];
+
+  // Renderizar temas
+  function renderTemas(){
+    const grid = document.getElementById('topicsGrid');
+    grid.innerHTML = '';
+    temas.forEach(t => {
+      const el = document.createElement('div');
+      el.className = 'topic-card' + (seleccionados.includes(t.code) ? ' selected' : '');
+      el.id = 'topic-'+t.code;
+      el.innerHTML = `
+        <span class="topic-emoji">${t.emoji}</span>
+        <div class="topic-info">
+          <div class="topic-code">${t.code} · ${t.cat}</div>
+          <div class="topic-title">${t.title}</div>
+          <div class="topic-desc">${t.desc}</div>
+        </div>
+        <div class="topic-check">${seleccionados.includes(t.code)?'✓':''}</div>
+      `;
+      el.onclick = () => toggleTema(t.code);
+      grid.appendChild(el);
+    });
+    actualizarDisabled();
+  }
+
+  function toggleTema(code){
+    if(seleccionados.includes(code)){
+      seleccionados = seleccionados.filter(c=>c!==code);
+    } else {
+      if(seleccionados.length >= 5) return;
+      seleccionados.push(code);
+    }
+    document.getElementById('count-display').textContent = seleccionados.length;
+    renderTemas();
+  }
+
+  function actualizarDisabled(){
+    temas.forEach(t => {
+      const el = document.getElementById('topic-'+t.code);
+      if(!seleccionados.includes(t.code) && seleccionados.length >= 5){
+        el.classList.add('disabled');
+      } else {
+        el.classList.remove('disabled');
+      }
+    });
+  }
+
+  // STEP NAVIGATION
+  function setStep(n){
+    [1,2,3,4].forEach(i=>{
+      document.getElementById('step'+i).classList.remove('active');
+    });
+    document.getElementById('step'+n).classList.add('active');
+
+    // dots
+    [1,2,3].forEach(i=>{
+      const dot = document.getElementById('dot'+i);
+      dot.classList.remove('active','done');
+      if(i < n) dot.classList.add('done'), dot.innerHTML='✓';
+      else if(i===n) dot.classList.add('active'), dot.innerHTML=i;
+      else dot.innerHTML=i;
+    });
+    // lines
+    [1,2].forEach(i=>{
+      const line = document.getElementById('line'+i);
+      line.classList.toggle('done', i < n);
+    });
+  }
+
+  function goStep2(){
+    const nombre = document.getElementById('nombre').value.trim();
+    const edad = document.getElementById('edad').value.trim();
+    if(!nombre || !edad || isNaN(edad) || edad < 10 || edad > 35){
+      document.getElementById('error1').classList.add('show');
+      return;
+    }
+    document.getElementById('error1').classList.remove('show');
+    renderTemas();
+    setStep(2);
+  }
+
+  function goStep1(){
+    setStep(1);
+  }
+
+  function goStep3(){
+    if(seleccionados.length !== 5){
+      document.getElementById('error2').classList.add('show');
+      return;
+    }
+    document.getElementById('error2').classList.remove('show');
+
+    const nombre = document.getElementById('nombre').value.trim();
+    const edad = document.getElementById('edad').value.trim();
+    document.getElementById('sumNombre').textContent = '¡Hola, ' + nombre + '!';
+    document.getElementById('sumEdad').textContent = edad + ' años · Retiro Jóvenes Cúcuta 2025';
+
+    const list = document.getElementById('sumTopics');
+    list.innerHTML = '';
+    seleccionados.forEach(code=>{
+      const t = temas.find(x=>x.code===code);
+      list.innerHTML += `<div class="summary-topic-item">
+        <span class="t-code">${t.code}</span>
+        <span>${t.emoji}</span>
+        <span class="t-title">${t.title}</span>
+      </div>`;
+    });
+    setStep(3);
+  }
+
+  async function enviarTelegram(){
+    const nombre = document.getElementById('nombre').value.trim();
+    const edad = document.getElementById('edad').value.trim();
+    const codigosStr = seleccionados.join(', ');
+    const temasStr = seleccionados.map(code=>{
+      const t = temas.find(x=>x.code===code);
+      return `  ${t.code} — ${t.emoji} ${t.title}`;
+    }).join('\n');
+
+    const mensaje = `✝️ *NUEVO REGISTRO — RETIRO JÓVENES*\n\n` +
+      `👤 *Nombre:* ${nombre}\n` +
+      `🎂 *Edad:* ${edad} años\n\n` +
+      `📌 *Códigos seleccionados:* ${codigosStr}\n\n` +
+      `📖 *Temas elegidos:*\n${temasStr}\n\n` +
+      `🕐 ${new Date().toLocaleString('es-CO')}`;
+
+    const errDiv = document.getElementById('error3');
+    errDiv.style.display='none';
+
+    // Verificar configuración
+    if(TELEGRAM_BOT_TOKEN === "8139154687:AAHbJCrClIFRoVUJwJM8v-6GrTUOAs22lgY" || TELEGRAM_CHAT_ID === "7941395763"){
+      // Modo demo: mostrar éxito igual pero avisar
+      mostrarExito(nombre);
+      console.warn("⚠️ Configura TELEGRAM_BOT_TOKEN y TELEGRAM_CHAT_ID en el código");
+      return;
+    }
+
+    try {
+      const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: mensaje,
+          parse_mode: 'Markdown'
+        })
+      });
+      const data = await res.json();
+      if(data.ok){
+        mostrarExito(nombre);
+      } else {
+        errDiv.textContent = '❌ Error enviando a Telegram: ' + data.description;
+        errDiv.style.display = 'block';
+      }
+    } catch(e) {
+      errDiv.textContent = '❌ Error de conexión. Verifica tu token e intenta de nuevo.';
+      errDiv.style.display = 'block';
+    }
+  }
+
+  function mostrarExito(nombre){
+    document.getElementById('successName').textContent = nombre;
+    const st = document.getElementById('successTopics');
+    st.innerHTML = '';
+    seleccionados.forEach(code=>{
+      const t = temas.find(x=>x.code===code);
+      st.innerHTML += `<div style="color:var(--cream);font-size:0.88rem;font-weight:600;">${t.emoji} ${t.title}</div>`;
+    });
+    // Ocultar step indicator en éxito
+    document.querySelector('.step-indicator').style.opacity='0.3';
+    setStep(4);
+  }
+
+  function reiniciar(){
+    document.getElementById('nombre').value='';
+    document.getElementById('edad').value='';
+    seleccionados=[];
+    document.getElementById('count-display').textContent='0';
+    document.querySelector('.step-indicator').style.opacity='1';
+    setStep(1);
+  }
+</script>
+</body>
+</html>
